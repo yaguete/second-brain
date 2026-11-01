@@ -9,7 +9,7 @@ node_modules/
 *.local.txt
 .llm-usage.jsonl
 .canonical-wiki-*.json
-job-docs/
+/job-docs/
 /bills/
 PLAN.md
 tools/banned-terms.local.txt
