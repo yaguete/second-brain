@@ -8,7 +8,7 @@ node_modules/
 *.local.json
 *.local.txt
 .llm-usage.jsonl
-.canonical-wiki-*.json
+.second-brain-*.json
 /job-docs/
 /bills/
 PLAN.md

@@ -11,9 +11,9 @@
 import fs from "fs";
 import path from "path";
 
-const VAULT_STATE_BASENAME = ".canonical-wiki-vault-state.json";
-const BRAIN_INGEST_BASENAME = ".canonical-wiki-brain-ingest-state.json";
-const WIKI_ALERTS_BASENAME = ".canonical-wiki-wiki-alerts.json";
+const VAULT_STATE_BASENAME = ".second-brain-vault-state.json";
+const BRAIN_INGEST_BASENAME = ".second-brain-brain-ingest-state.json";
+const WIKI_ALERTS_BASENAME = ".second-brain-wiki-alerts.json";
 
 /** @param {string} vaultRoot @param {string} [_repoRoot] */
 export function vaultStatePaths(vaultRoot, _repoRoot) {
@@ -33,7 +33,7 @@ export function brainIngestStatePaths(vaultRoot, _repoRoot) {
 
 /**
  * Estado de alertas pendientes de synthesize:wiki. Sin legacy: nace con el fichero
- * canónico dentro del vault (misma convención `.canonical-wiki-*.json`).
+ * canónico dentro del vault (misma convención `.second-brain-*.json`).
  * @param {string} vaultRoot
  */
 export function wikiAlertsStatePaths(vaultRoot) {

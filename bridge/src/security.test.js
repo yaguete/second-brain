@@ -10,7 +10,7 @@ const SECRET = "c".repeat(32);
 process.env.BRIDGE_API_KEY = KEY;
 process.env.BRIDGE_READ_KEY = READ;
 process.env.OAUTH_CLIENT_SECRET = SECRET;
-process.env.OAUTH_CLIENT_ID = "canonical-wiki";
+process.env.OAUTH_CLIENT_ID = "second-brain";
 process.env.OAUTH_REDIRECT_URIS = "http://127.0.0.1:9/cb";
 process.env.ENABLED_MODULES = "brain,ynab";
 delete process.env.DATABASE_URL;
@@ -60,7 +60,7 @@ test("authorize rejects a redirect uri that is not on the list", async () => {
   try {
     const url = new URL(`http://127.0.0.1:${port}/authorize`);
     url.searchParams.set("response_type", "code");
-    url.searchParams.set("client_id", "canonical-wiki");
+    url.searchParams.set("client_id", "second-brain");
     url.searchParams.set("redirect_uri", "http://evil.example/cb");
     const res = await fetch(url, { redirect: "manual" });
     assert.equal(res.status, 400);

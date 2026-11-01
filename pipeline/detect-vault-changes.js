@@ -10,8 +10,8 @@
  * Variables de entorno:
  *   OBSIDIAN_VAULT_PATH - Raíz del vault (obligatorio en prod; default local del plan)
  *   VAULT_STATE_FILE (opcional) - Ruta absoluta al JSON de estado; por defecto
- *     `<vault>/.canonical-wiki-vault-state.json` (sincroniza con iCloud junto al vault).
- *     Si no existe, se lee el legacy `canonical-wiki/.vault-state.json` y las siguientes
+ *     `<vault>/.second-brain-vault-state.json` (sincroniza con iCloud junto al vault).
+ *     Si no existe, se lee el legacy `second-brain/.vault-state.json` y las siguientes
  *     escrituras van al fichero dentro del vault.
  *
  * Opciones:

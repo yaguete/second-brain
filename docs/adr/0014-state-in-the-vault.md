@@ -6,7 +6,7 @@ State files in the git repo were left behind when the vault moved to another mac
 
 ## Decision
 
-Three JSON files sit at the vault root and travel with the notes: `.canonical-wiki-vault-state.json`, `.canonical-wiki-brain-ingest-state.json`, and `.canonical-wiki-wiki-alerts.json`. Paths can be overridden with `VAULT_STATE_FILE`, `BRAIN_INGEST_STATE_FILE`, and `WIKI_ALERTS_STATE_FILE`. There is no legacy repo-root fallback.
+Three JSON files sit at the vault root and travel with the notes: `.second-brain-vault-state.json`, `.second-brain-brain-ingest-state.json`, and `.second-brain-wiki-alerts.json`. Paths can be overridden with `VAULT_STATE_FILE`, `BRAIN_INGEST_STATE_FILE`, and `WIKI_ALERTS_STATE_FILE`. There is no legacy repo-root fallback.
 
 ## Consequences
 

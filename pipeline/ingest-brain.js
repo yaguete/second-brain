@@ -6,7 +6,7 @@
  * Env:
  *   OBSIDIAN_VAULT_PATH
  *   BRAIN_INGEST_STATE_FILE (opcional) — ver scripts/lib/vault-bridge-state.js; por defecto
- *     `<vault>/.canonical-wiki-brain-ingest-state.json` (iCloud con el vault).
+ *     `<vault>/.second-brain-brain-ingest-state.json` (iCloud con el vault).
  *   BRAIN_WIKI_DIR_NAME (default: "📒 Wiki")
  *   BRIDGE_URL, BRIDGE_API_KEY
  *   BRAIN_INGEST_BATCH_SIZE (default: 20) — chunks por request POST (evita 413 en páginas grandes)

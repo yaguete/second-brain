@@ -36,7 +36,7 @@ Guards, in order: title match; placeholder and shrink; fact retention at 0.9 to 
 
 Maintenance without an LLM: `index.md` is rebuilt from frontmatter, dated status snapshots move into monthly chronologies, and 1:1 entries older than three months move to quarterly archives. A single `⚠ wiki-sync.md` in the inbox tracks hard failures and is deleted when nothing is pending.
 
-State files, inside the vault: `.canonical-wiki-vault-state.json`, `.canonical-wiki-brain-ingest-state.json`, `.canonical-wiki-wiki-alerts.json`.
+State files, inside the vault: `.second-brain-vault-state.json`, `.second-brain-brain-ingest-state.json`, `.second-brain-wiki-alerts.json`.
 
 ## Index
 
@@ -118,7 +118,7 @@ Every other `process.env` name the code reads:
 | `BILLS_DOCS_PATH` | when ingesting bills | none; the script exits |
 | `BILLS_USE_STORED_EXTRACT` | no | on; `0` forces the LLM; `strict` never calls it |
 | `BRAIN_INGEST_BATCH_SIZE` | no | 20 |
-| `BRAIN_INGEST_STATE_FILE` | no | vault root, `.canonical-wiki-brain-ingest-state.json` |
+| `BRAIN_INGEST_STATE_FILE` | no | vault root, `.second-brain-brain-ingest-state.json` |
 | `BRAIN_MAX_CHUNKS_PER_PAGE` | no | 25, warning only |
 | `BRAIN_WIKI_DIR_NAME` | no | `📒 Wiki` |
 | `BRIDGE_API_KEY` | yes, to boot | none; at least 32 bytes |
@@ -163,7 +163,7 @@ Every other `process.env` name the code reads:
 | `MONTHLY_WEBSEARCH_MODEL` | no | `gpt-5.6-luna` |
 | `NEWSAPI_BASE_URL` | no | the client's default |
 | `NEWSAPI_KEY` | for monthly news | none |
-| `OAUTH_CLIENT_ID` | no | `canonical-wiki` |
+| `OAUTH_CLIENT_ID` | no | `second-brain` |
 | `OAUTH_CLIENT_SECRET` | to use `/token` | none; at least 32 bytes if set |
 | `OAUTH_REDIRECT_URIS` | to use `/authorize` | empty, and then `/authorize` is 400 |
 | `OBSIDIAN_VAULT_PATH` | for every pipeline script that reads a vault | none; the script exits |
@@ -179,8 +179,8 @@ Every other `process.env` name the code reads:
 | `STRIP_BINARY_BLOBS` | no | on; `off` keeps data URIs |
 | `SYNC_WIKI` | set by `sync:wiki` | unset |
 | `TRUST_PROXY` | no | off; `1` trusts `X-Forwarded-For` |
-| `VAULT_STATE_FILE` | no | vault root, `.canonical-wiki-vault-state.json` |
-| `WIKI_ALERTS_STATE_FILE` | no | vault root, `.canonical-wiki-wiki-alerts.json` |
+| `VAULT_STATE_FILE` | no | vault root, `.second-brain-vault-state.json` |
+| `WIKI_ALERTS_STATE_FILE` | no | vault root, `.second-brain-wiki-alerts.json` |
 | `WIKI_ALERT_FACT_RETENTION` | no | 0.5 |
 | `WIKI_AUDIT_MIN_BODY_CHARS` | no | the script's built-in |
 | `WIKI_BACKUP_DIR` | no | no backups |

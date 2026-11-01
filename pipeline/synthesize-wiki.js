@@ -10,7 +10,7 @@
  * Env:
  *   OBSIDIAN_VAULT_PATH (obligatoria; no hay ruta por defecto)
  *   VAULT_STATE_FILE (opcional) — ver scripts/lib/vault-bridge-state.js; por defecto
- *     `<vault>/.canonical-wiki-vault-state.json` (iCloud con el vault).
+ *     `<vault>/.second-brain-vault-state.json` (iCloud con el vault).
  *   BRAIN_WIKI_DIR_NAME (default: "📒 Wiki")
  *   OPENAI_API_KEY — por defecto (OpenAI)
  *   WIKI_SYNTHESIS_MODEL — modelo (default: gpt-5.6-luna); ej. deepseek-flash, deepseek-v4-pro

@@ -9,7 +9,7 @@ export const WITHINGS_REDIRECT_URI = process.env.WITHINGS_REDIRECT_URI;
 export const WITHINGS_SCOPE_RAW = process.env.WITHINGS_SCOPE || "metrics,activity";
 export const WITHINGS_API = "https://wbsapi.withings.net/v2";
 export const WITHINGS_AUTH_BASE = "https://account.withings.com/oauth2_user/authorize2";
-export const OAUTH_CLIENT_ID = process.env.OAUTH_CLIENT_ID || "canonical-wiki";
+export const OAUTH_CLIENT_ID = process.env.OAUTH_CLIENT_ID || "second-brain";
 export const OAUTH_REDIRECT_URIS = (process.env.OAUTH_REDIRECT_URIS || "")
   .split(",")
   .map((s) => s.trim())

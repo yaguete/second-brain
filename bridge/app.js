@@ -22,7 +22,7 @@ export function createApp() {
   if (TRUST_PROXY) app.set("trust proxy", 1);
   app.use(express.json({ limit: "2mb" }));
 
-  app.get("/", (_req, res) => res.json({ service: "canonical-wiki", ok: true }));
+  app.get("/", (_req, res) => res.json({ service: "second-brain", ok: true }));
   app.get("/health", (_req, res) => res.json({ ok: true }));
 
   mountOAuthBridge(app);

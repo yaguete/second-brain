@@ -9,5 +9,5 @@ if (!boot.ok) {
 const { createApp, initSchemas } = await import("./app.js");
 const app = createApp();
 initSchemas().then(() => {
-  app.listen(PORT, () => console.log(`canonical-wiki listening on port ${PORT}`));
+  app.listen(PORT, () => console.log(`second-brain listening on port ${PORT}`));
 });

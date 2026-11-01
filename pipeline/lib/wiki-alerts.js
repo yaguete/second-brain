@@ -3,7 +3,7 @@
  *
  * El aviso es una foto del ESTADO, no del run: un único fichero canónico
  * `📥 Inbox/⚠ wiki-sync.md` que se reescribe en cada ejecución y se BORRA cuando
- * no queda nada pendiente. El estado vive en `<vault>/.canonical-wiki-wiki-alerts.json`
+ * no queda nada pendiente. El estado vive en `<vault>/.second-brain-wiki-alerts.json`
  * con una entrada por ruta de fuente ({ error, first_seen, last_seen, attempts }).
  *
  * mergePendingAlerts / renderAlertMarkdown son puras (testeables sin fs).

@@ -37,16 +37,30 @@ function herokuAllowed(rel) {
   return rel === "README.md" || rel.startsWith("docs/adr/");
 }
 
+/** Absolute home directories: macOS, Linux, Windows. They name a real machine and user. */
+const HOME_PATH_RE = /(?:^|[\s"'`(=])(?:\/Users\/|\/home\/|[A-Za-z]:\\Users\\)[^\s/\\]+/;
+/** Synced app containers (iCloud Drive and similar) that only exist on a personal machine. */
+const SYNCED_DIR_RE = /Mobile Documents|iCloud~|\/Library\/CloudStorage\//;
+/** Pipeline state files carry a project prefix. Any prefix other than this repo's is a private fork. */
+const STATE_FILE_RE = /\.([a-z0-9][a-z0-9-]*)-(?:vault-state|brain-ingest-state|wiki-alerts)\.json/gi;
+const PUBLIC_STATE_PREFIX = "second-brain";
+
+function foreignStatePrefixes(line) {
+  const out = [];
+  for (const m of line.matchAll(STATE_FILE_RE)) {
+    if (m[1].toLowerCase() !== PUBLIC_STATE_PREFIX) out.push(m[1]);
+  }
+  return out;
+}
+
 function coreHits(rel, line) {
   const hits = [];
   const rules = [
-    ["/Users/", line.includes("/Users/")],
-    ["iCloud~md~obsidian", line.includes("iCloud~md~obsidian")],
-    ["notas_de_yago", line.includes("notas_de_yago")],
+    ["home-path", HOME_PATH_RE.test(line)],
+    ["synced-dir", SYNCED_DIR_RE.test(line)],
     ["herokuapp.com", line.includes("herokuapp.com")],
     ["heroku", /\bheroku\b/i.test(line) && !herokuAllowed(rel)],
-    ["yago-bridge", line.includes("yago-bridge")],
-    [".yago-bridge-", line.includes(".yago-bridge-")],
+    ["foreign-state-file", foreignStatePrefixes(line).length > 0],
     ["uuid", UUID_RE.test(line) && rel !== "package-lock.json"],
     ["secret", SECRET_RES.some((re) => re.test(line))]
   ];
