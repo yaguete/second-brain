@@ -1,0 +1,712 @@
+openapi: 3.1.0
+info:
+  title: YNAB Analytics API
+  version: "1.0.0"
+  description: Endpoints de análisis y agregados para YNAB. Requiere X-API-Key.
+
+servers:
+  - url: http://localhost:3000
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+paths:
+  /health:
+    get:
+      operationId: health
+      security: []
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
+  /v1/budgets:
+    get:
+      operationId: listBudgets
+      summary: List budgets (needed to get budget_id)
+      responses:
+        "200":
+          description: Budgets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  budgets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+
+  /v1/month-summary:
+    get:
+      operationId: getMonthSummary
+      summary: Get budget totals for a month
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: month
+          required: false
+          schema: { type: string, description: "current | YYYY-MM | YYYY-MM-01" }
+      responses:
+        "200":
+          description: Month summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  month: { type: string }
+                  totals:
+                    type: object
+                    properties:
+                      budgeted: { type: number }
+                      activity: { type: number }
+                      balance: { type: number }
+
+  /v1/spending-by-category:
+    get:
+      operationId: getSpendingByCategory
+      summary: Top spending categories
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: month
+          required: false
+          schema: { type: string }
+        - in: query
+          name: top
+          required: false
+          schema: { type: integer, default: 15 }
+      responses:
+        "200":
+          description: Spending breakdown
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  month: { type: string }
+                  spending:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+                        group: { type: string }
+                        activity: { type: number }
+
+  /v1/payee-breakdown:
+    get:
+      operationId: getPayeeBreakdown
+      summary: Aggregate spending by payee for a category
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: category_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: type
+          required: false
+          schema: { type: string, description: "inflow | outflow | all" }
+        - in: query
+          name: top
+          required: false
+          schema: { type: integer, default: 50 }
+      responses:
+        "200":
+          description: Payee breakdown
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  category_id: { type: string }
+                  transaction_count: { type: integer }
+                  grand_total: { type: number }
+                  breakdown:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        payee_id: { type: string }
+                        payee_name: { type: string }
+                        total: { type: number }
+                        count: { type: integer }
+
+  /v1/category-breakdown:
+    get:
+      operationId: getCategoryBreakdown
+      summary: Aggregate spending by category for a payee
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: type
+          required: false
+          schema: { type: string }
+        - in: query
+          name: top
+          required: false
+          schema: { type: integer, default: 50 }
+      responses:
+        "200":
+          description: Category breakdown
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payee_id: { type: string }
+                  transaction_count: { type: integer }
+                  grand_total: { type: number }
+                  breakdown:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        category_id: { type: string }
+                        category_name: { type: string }
+                        total: { type: number }
+                        count: { type: integer }
+
+  /v1/spending-trend:
+    get:
+      operationId: getSpendingTrend
+      summary: Time-series spending aggregated by day/week/month
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: category_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: account_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_name_contains
+          required: false
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: group_by
+          required: false
+          schema: { type: string, default: "month", description: "day | week | month" }
+        - in: query
+          name: type
+          required: false
+          schema: { type: string, default: "outflow" }
+        - in: query
+          name: exclude_transfers
+          required: false
+          schema: { type: string, description: "true to exclude transfers" }
+        - in: query
+          name: exclude_reconciliations
+          required: false
+          schema: { type: string, description: "true to exclude reconciliations" }
+        - in: query
+          name: exclude_category_ids
+          required: false
+          schema: { type: string, description: "comma-separated" }
+        - in: query
+          name: exclude_payee_ids
+          required: false
+          schema: { type: string, description: "comma-separated" }
+        - in: query
+          name: exclude_payee_names
+          required: false
+          schema: { type: string, description: "comma-separated" }
+      responses:
+        "200":
+          description: Spending trend
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  filter_type: { type: string }
+                  filter_name: { type: string }
+                  group_by: { type: string }
+                  grand_total: { type: number }
+                  avg_per_period: { type: number }
+                  periods:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period: { type: string }
+                        total: { type: number }
+                        count: { type: integer }
+
+  /v1/transactions-sum:
+    get:
+      operationId: getTransactionsSum
+      summary: Count and total only (no transaction details)
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: type
+          required: false
+          schema: { type: string }
+        - in: query
+          name: account_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: category_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_name_contains
+          required: false
+          schema: { type: string }
+        - in: query
+          name: exclude_transfers
+          required: false
+          schema: { type: string }
+        - in: query
+          name: exclude_reconciliations
+          required: false
+          schema: { type: string }
+        - in: query
+          name: exclude_category_ids
+          required: false
+          schema: { type: string }
+        - in: query
+          name: exclude_payee_ids
+          required: false
+          schema: { type: string }
+        - in: query
+          name: exclude_payee_names
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Sum
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: { type: integer }
+                  total: { type: number }
+
+  /v1/month-category-activity:
+    get:
+      operationId: getMonthCategoryActivity
+      summary: Categories of a month filtered by name
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: month
+          required: true
+          schema: { type: string }
+        - in: query
+          name: name_contains
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Month category activity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  month: { type: string }
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+                        category_group_name: { type: string }
+                        activity: { type: number }
+
+  /v1/account-balance-at-date:
+    get:
+      operationId: getAccountBalanceAtDate
+      summary: Historical account balance at a specific date
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: account_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: date
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Account balance at date
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account_id: { type: string }
+                  account_name: { type: string }
+                  date: { type: string }
+                  current_balance: { type: number }
+                  transactions_since: { type: integer }
+                  balance_at_date: { type: number }
+
+  /v1/market-pnl:
+    get:
+      operationId: getMarketPnL
+      summary: Investment P&L from reconciliation adjustments
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: account_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Market P&L
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account_id: { type: string }
+                  account_name: { type: string }
+                  reconciliation_count: { type: integer }
+                  market_pnl: { type: number }
+
+  /v1/savings-rate:
+    get:
+      operationId: getSavingsRate
+      summary: Calculate savings rate percentage
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Savings rate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  income: { type: number }
+                  expenses: { type: number }
+                  savings: { type: number }
+                  savings_rate: { type: number }
+
+  /v1/recurring-expenses:
+    get:
+      operationId: getRecurringExpenses
+      summary: Detect subscriptions and recurring expenses
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: months
+          required: false
+          schema: { type: integer, default: 3 }
+        - in: query
+          name: min_occurrences
+          required: false
+          schema: { type: integer, default: 2 }
+        - in: query
+          name: variance_threshold
+          required: false
+          schema: { type: integer, default: 20 }
+      responses:
+        "200":
+          description: Recurring expenses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  months_analyzed: { type: integer }
+                  recurring_count: { type: integer }
+                  recurring:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        payee_name: { type: string }
+                        occurrences: { type: integer }
+                        avg_amount: { type: number }
+
+  /v1/spending-anomalies:
+    get:
+      operationId: getSpendingAnomalies
+      summary: Find categories with unusual spending
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: month
+          required: false
+          schema: { type: string, default: "current" }
+        - in: query
+          name: threshold
+          required: false
+          schema: { type: integer, default: 50 }
+      responses:
+        "200":
+          description: Spending anomalies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  month: { type: string }
+                  anomaly_count: { type: integer }
+                  anomalies:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        category_name: { type: string }
+                        current_spending: { type: number }
+                        avg_spending: { type: number }
+                        deviation_percent: { type: integer }
+
+  /v1/net-worth-history:
+    get:
+      operationId: getNetWorthHistory
+      summary: Net worth over time
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string }
+        - in: query
+          name: group_by
+          required: false
+          schema: { type: string, default: "month" }
+      responses:
+        "200":
+          description: Net worth history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_net_worth: { type: number }
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period: { type: string }
+                        net_worth: { type: number }
+
+  /v1/budget-vs-actual:
+    get:
+      operationId: getBudgetVsActual
+      summary: Compare budgeted vs actual spending
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: month
+          required: false
+          schema: { type: string, default: "current" }
+        - in: query
+          name: show_all
+          required: false
+          schema: { type: string, default: "false" }
+      responses:
+        "200":
+          description: Budget vs actual
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  month: { type: string }
+                  total_budgeted: { type: number }
+                  total_spent: { type: number }
+                  over_budget_count: { type: integer }
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        category_name: { type: string }
+                        budgeted: { type: number }
+                        spent: { type: number }
+                        remaining: { type: number }
+                        percent_used: { type: integer }
+                        status: { type: string }
+
+  /v1/payee-frequency:
+    get:
+      operationId: getPayeeFrequency
+      summary: Visit frequency per payee
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_name_contains
+          required: false
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: false
+          schema: { type: string }
+        - in: query
+          name: until_date
+          required: false
+          schema: { type: string }
+        - in: query
+          name: group_by
+          required: false
+          schema: { type: string, default: "month" }
+      responses:
+        "200":
+          description: Payee frequency
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payee_name: { type: string }
+                  total_visits: { type: integer }
+                  total_spent: { type: number }
+                  avg_per_visit: { type: number }
+                  periods:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period: { type: string }
+                        visit_count: { type: integer }
+                        total_spent: { type: number }

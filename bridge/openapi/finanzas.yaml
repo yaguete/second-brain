@@ -1,0 +1,1405 @@
+openapi: 3.1.0
+info:
+  title: YNAB Bridge API (GPT Action)
+  version: "1.0.0"
+  description: Thin proxy over YNAB API with an additional X-API-Key header. All /v1 routes require X-API-Key.
+
+servers:
+  - url: http://localhost:3000
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: object
+          nullable: true
+          additionalProperties: true
+      required: [error]
+
+    BudgetsResponse:
+      type: object
+      properties:
+        budgets:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+            required: [id, name]
+      required: [budgets]
+
+    MonthSummaryResponse:
+      type: object
+      properties:
+        month:
+          type: string
+          nullable: true
+          description: YYYY-MM-01
+        totals_milliunits:
+          type: object
+          properties:
+            budgeted: { type: integer }
+            activity: { type: integer }
+            balance: { type: integer }
+          required: [budgeted, activity, balance]
+        totals:
+          type: object
+          properties:
+            budgeted: { type: number }
+            activity: { type: number }
+            balance: { type: number }
+          required: [budgeted, activity, balance]
+      required: [month, totals_milliunits, totals]
+
+    SpendingByCategoryItem:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        group:
+          type: string
+          nullable: true
+        activity:
+          type: number
+          description: negative units (spend)
+      required: [id, name, activity]
+
+    SpendingByCategoryResponse:
+      type: object
+      properties:
+        month:
+          type: string
+          nullable: true
+          description: YYYY-MM-01
+        spending:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpendingByCategoryItem"
+      required: [month, spending]
+
+    AccountsResponse:
+      type: object
+      properties:
+        accounts:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+              type: { type: string }
+              on_budget: { type: boolean }
+              closed: { type: boolean }
+              balance: { type: integer }
+              balance_units: { type: number }
+              cleared_balance: { type: integer }
+              cleared_balance_units: { type: number }
+              uncleared_balance: { type: integer }
+              uncleared_balance_units: { type: number }
+            required: [id, name, type, on_budget, closed, balance, balance_units]
+      required: [accounts]
+
+    AccountResponse:
+      type: object
+      properties:
+        account:
+          type: object
+          properties:
+            id: { type: string }
+            name: { type: string }
+            type: { type: string }
+            on_budget: { type: boolean }
+            closed: { type: boolean }
+            balance: { type: integer }
+            balance_units: { type: number }
+            cleared_balance: { type: integer }
+            cleared_balance_units: { type: number }
+            uncleared_balance: { type: integer }
+            uncleared_balance_units: { type: number }
+          required: [id, name, type, on_budget, closed, balance, balance_units]
+      required: [account]
+
+    CategoryGroup:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        hidden: { type: boolean }
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+              hidden: { type: boolean }
+              budgeted: { type: integer }
+              budgeted_units: { type: number }
+              activity: { type: integer }
+              activity_units: { type: number }
+              balance: { type: integer }
+              balance_units: { type: number }
+            required: [id, name, hidden, budgeted, activity, balance]
+      required: [id, name, hidden, categories]
+
+    CategoriesResponse:
+      type: object
+      properties:
+        category_groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryGroup"
+      required: [category_groups]
+
+    CategoryResponse:
+      type: object
+      properties:
+        category:
+          type: object
+          properties:
+            id: { type: string }
+            name: { type: string }
+            category_group_id: { type: string }
+            category_group_name:
+              type: string
+              nullable: true
+            hidden: { type: boolean }
+            budgeted: { type: integer }
+            budgeted_units: { type: number }
+            activity: { type: integer }
+            activity_units: { type: number }
+            balance: { type: integer }
+            balance_units: { type: number }
+          required: [id, name, category_group_id, hidden, budgeted, activity, balance]
+      required: [category]
+
+    MonthsResponse:
+      type: object
+      properties:
+        months:
+          type: array
+          items:
+            type: object
+            properties:
+              month: { type: string, description: YYYY-MM-01 }
+              income: { type: integer }
+              income_units: { type: number }
+              budgeted: { type: integer }
+              budgeted_units: { type: number }
+              activity: { type: integer }
+              activity_units: { type: number }
+              to_be_budgeted: { type: integer }
+              to_be_budgeted_units: { type: number }
+            required: [month, income, budgeted, activity, to_be_budgeted]
+      required: [months]
+
+    MonthDetailResponse:
+      type: object
+      properties:
+        month:
+          type: object
+          properties:
+            month: { type: string }
+            income: { type: integer }
+            income_units: { type: number }
+            budgeted: { type: integer }
+            budgeted_units: { type: number }
+            activity: { type: integer }
+            activity_units: { type: number }
+            to_be_budgeted: { type: integer }
+            to_be_budgeted_units: { type: number }
+            categories:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: { type: string }
+                  name: { type: string }
+                  category_group_name:
+                    type: string
+                    nullable: true
+                  budgeted: { type: integer }
+                  budgeted_units: { type: number }
+                  activity: { type: integer }
+                  activity_units: { type: number }
+                  balance: { type: integer }
+                  balance_units: { type: number }
+                required: [id, name, budgeted, activity, balance]
+          required: [month, income, budgeted, activity, to_be_budgeted, categories]
+      required: [month]
+
+    PayeesResponse:
+      type: object
+      properties:
+        payees:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+              transfer_account_id:
+                type: string
+                nullable: true
+            required: [id, name]
+      required: [payees]
+
+    PayeeResponse:
+      type: object
+      properties:
+        payee:
+          type: object
+          properties:
+            id: { type: string }
+            name: { type: string }
+            transfer_account_id:
+              type: string
+              nullable: true
+          required: [id, name]
+      required: [payee]
+
+    TransactionsResponse:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      required: [transactions]
+
+    TransactionResponse:
+      type: object
+      properties:
+        transaction:
+          type: object
+          additionalProperties: true
+      required: [transaction]
+
+    TransactionsSumResponse:
+      type: object
+      properties:
+        count: { type: integer }
+        total_milliunits: { type: integer }
+        total: { type: number }
+      required: [count, total_milliunits, total]
+
+    PayeeBreakdownItem:
+      type: object
+      properties:
+        payee_id:
+          type: string
+          nullable: true
+        payee_name: { type: string }
+        total_milliunits: { type: integer }
+        total: { type: number }
+        count: { type: integer }
+      required: [payee_name, total_milliunits, total, count]
+
+    PayeeBreakdownResponse:
+      type: object
+      properties:
+        category_id:
+          type: string
+          nullable: true
+        payee_id:
+          type: string
+          nullable: true
+        since_date:
+          type: string
+          nullable: true
+        until_date:
+          type: string
+          nullable: true
+        transaction_count: { type: integer }
+        grand_total_milliunits: { type: integer }
+        grand_total: { type: number }
+        breakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/PayeeBreakdownItem"
+      required: [transaction_count, grand_total_milliunits, grand_total, breakdown]
+
+    CategoryBreakdownItem:
+      type: object
+      properties:
+        category_id:
+          type: string
+          nullable: true
+        category_name: { type: string }
+        total_milliunits: { type: integer }
+        total: { type: number }
+        count: { type: integer }
+      required: [category_name, total_milliunits, total, count]
+
+    CategoryBreakdownResponse:
+      type: object
+      properties:
+        payee_id:
+          type: string
+          nullable: true
+        since_date:
+          type: string
+          nullable: true
+        until_date:
+          type: string
+          nullable: true
+        transaction_count: { type: integer }
+        grand_total_milliunits: { type: integer }
+        grand_total: { type: number }
+        breakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryBreakdownItem"
+      required: [transaction_count, grand_total_milliunits, grand_total, breakdown]
+
+    MonthCategoryActivityResponse:
+      type: object
+      properties:
+        month: { type: string }
+        name_contains:
+          type: string
+          nullable: true
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+              category_group_name:
+                type: string
+                nullable: true
+              activity: { type: integer }
+              activity_units: { type: number }
+            required: [id, name, activity, activity_units]
+      required: [month, categories]
+
+    AccountBalanceAtDateResponse:
+      type: object
+      properties:
+        account_id: { type: string }
+        account_name: { type: string }
+        date: { type: string }
+        current_balance_milliunits: { type: integer }
+        current_balance: { type: number }
+        transactions_since: { type: integer }
+        balance_at_date_milliunits: { type: integer }
+        balance_at_date: { type: number }
+      required: [account_id, account_name, date, current_balance, balance_at_date]
+
+    SpendingTrendPeriod:
+      type: object
+      properties:
+        period: { type: string }
+        total: { type: number }
+        count: { type: integer }
+      required: [period, total, count]
+
+    SpendingTrendResponse:
+      type: object
+      properties:
+        filter_type:
+          type: string
+          nullable: true
+          description: "account | category | payee"
+        filter_id:
+          type: string
+          nullable: true
+        filter_name:
+          type: string
+          nullable: true
+        payee_name_contains:
+          type: string
+          nullable: true
+        group_by: { type: string, description: "day | week | month" }
+        type: { type: string, description: "inflow | outflow | all" }
+        since_date:
+          type: string
+          nullable: true
+        until_date:
+          type: string
+          nullable: true
+        transaction_count: { type: integer }
+        period_count: { type: integer }
+        grand_total_milliunits: { type: integer }
+        grand_total: { type: number }
+        avg_per_period_milliunits: { type: integer }
+        avg_per_period: { type: number }
+        periods:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpendingTrendPeriod"
+      required: [group_by, type, transaction_count, period_count, grand_total, avg_per_period, periods]
+
+    TransactionWriteRequest:
+      type: object
+      description: Pass-through YNAB payload. Provide either transaction or transactions.
+      properties:
+        transaction:
+          type: object
+          additionalProperties: true
+        transactions:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    TransactionWriteResult:
+      type: object
+      properties:
+        transaction:
+          type: object
+          additionalProperties: true
+        transactions:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        duplicate_import_ids:
+          type: array
+          items: { type: string }
+
+    ScheduledTransactionsResponse:
+      type: object
+      properties:
+        scheduled_transactions:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      required: [scheduled_transactions]
+
+    ScheduledTransactionResponse:
+      type: object
+      properties:
+        scheduled_transaction:
+          type: object
+          additionalProperties: true
+      required: [scheduled_transaction]
+
+    ScheduledTransactionWriteRequest:
+      type: object
+      description: Pass-through YNAB scheduled_transaction payload.
+      properties:
+        scheduled_transaction:
+          type: object
+          additionalProperties: true
+      required: [scheduled_transaction]
+
+paths:
+
+  /v1/budgets:
+    get:
+      operationId: listBudgets
+      summary: List budgets
+      parameters:
+        - in: query
+          name: budget_id
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Budgets
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BudgetsResponse" }
+
+  /v1/month-summary:
+    get:
+      operationId: getMonthSummary
+      summary: Get budget totals for a month
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: month
+          required: false
+          schema: { type: string, description: "current | YYYY-MM | YYYY-MM-01" }
+      responses:
+        "200":
+          description: Month summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MonthSummaryResponse" }
+
+  /v1/spending-by-category:
+    get:
+      operationId: getSpendingByCategory
+      summary: Top spending categories
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: month
+          required: false
+          schema: { type: string, description: "current | YYYY-MM | YYYY-MM-01" }
+        - in: query
+          name: top
+          required: false
+          schema: { type: integer, default: 15, minimum: 1, maximum: 500 }
+      responses:
+        "200":
+          description: Spending breakdown
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SpendingByCategoryResponse" }
+
+  /v1/payee-breakdown:
+    get:
+      operationId: getPayeeBreakdown
+      summary: Aggregate by payee (optionally filtered) for category/date range
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: category_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: type
+          required: false
+          schema: { type: string, description: "inflow|outflow|all (si lo soportas en bridge)" }
+        - in: query
+          name: top
+          required: false
+          schema: { type: integer, default: 50, minimum: 1, maximum: 500 }
+      responses:
+        "200":
+          description: Payee breakdown
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PayeeBreakdownResponse" }
+
+  /v1/category-breakdown:
+    get:
+      operationId: getCategoryBreakdown
+      summary: Aggregate by category for payee/date range
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: type
+          required: false
+          schema: { type: string, description: "inflow|outflow|all (si lo soportas en bridge)" }
+        - in: query
+          name: top
+          required: false
+          schema: { type: integer, default: 50, minimum: 1, maximum: 500 }
+      responses:
+        "200":
+          description: Category breakdown
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CategoryBreakdownResponse" }
+
+  /v1/month-category-activity:
+    get:
+      operationId: getMonthCategoryActivity
+      summary: Categories of a month filtered by name (activity included)
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: month
+          required: true
+          schema: { type: string, description: "current | YYYY-MM | YYYY-MM-01" }
+        - in: query
+          name: name_contains
+          required: false
+          schema: { type: string, description: "substring match (case-insensitive)" }
+      responses:
+        "200":
+          description: Month category activity
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MonthCategoryActivityResponse" }
+
+  /v1/accounts:
+    get:
+      operationId: listAccounts
+      summary: List accounts
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Accounts
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AccountsResponse" }
+
+  /v1/accounts/{account_id}:
+    get:
+      operationId: getAccount
+      summary: Get account by id
+      parameters:
+        - in: path
+          name: account_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Account
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AccountResponse" }
+
+  /v1/account-balance-at-date:
+    get:
+      operationId: getAccountBalanceAtDate
+      summary: Get historical account balance at a specific date
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: account_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+      responses:
+        "200":
+          description: Account balance at date
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AccountBalanceAtDateResponse" }
+
+  /v1/spending-trend:
+    get:
+      operationId: getSpendingTrend
+      summary: Time-series spending aggregated by day/week/month
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: category_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: account_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_name_contains
+          required: false
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: group_by
+          required: false
+          schema: { type: string, default: "month", description: "day | week | month" }
+        - in: query
+          name: type
+          required: false
+          schema: { type: string, default: "outflow", description: "inflow | outflow | all" }
+        - in: query
+          name: exclude_transfers
+          required: false
+          schema: { type: string, description: "true to exclude transfers between accounts" }
+        - in: query
+          name: exclude_reconciliations
+          required: false
+          schema: { type: string, description: "true to exclude reconciliation adjustments and starting balances" }
+        - in: query
+          name: exclude_category_ids
+          required: false
+          schema: { type: string, description: "comma-separated category IDs to exclude" }
+        - in: query
+          name: exclude_payee_ids
+          required: false
+          schema: { type: string, description: "comma-separated payee IDs to exclude" }
+        - in: query
+          name: exclude_payee_names
+          required: false
+          schema: { type: string, description: "comma-separated payee name substrings to exclude (case-insensitive)" }
+      responses:
+        "200":
+          description: Spending trend
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SpendingTrendResponse" }
+
+  /v1/categories:
+    get:
+      operationId: listCategories
+      summary: List category groups + categories
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: name_contains
+          required: false
+          schema: { type: string, description: "substring match (case-insensitive)" }
+      responses:
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CategoriesResponse" }
+
+  /v1/categories/{category_id}:
+    get:
+      operationId: getCategory
+      summary: Get category by id
+      parameters:
+        - in: path
+          name: category_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Category
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CategoryResponse" }
+
+  /v1/months:
+    get:
+      operationId: listMonths
+      summary: List months for a budget
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Months
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MonthsResponse" }
+
+  /v1/months/{month}:
+    get:
+      operationId: getMonthDetail
+      summary: Get month detail (categories included)
+      parameters:
+        - in: path
+          name: month
+          required: true
+          schema: { type: string, description: "current | YYYY-MM | YYYY-MM-01" }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Month detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MonthDetailResponse" }
+
+  /v1/payees:
+    get:
+      operationId: listPayees
+      summary: List payees
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: name_contains
+          required: false
+          schema: { type: string, description: "substring match (case-insensitive)" }
+      responses:
+        "200":
+          description: Payees
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PayeesResponse" }
+
+  /v1/payees/{payee_id}:
+    get:
+      operationId: getPayee
+      summary: Get payee by id
+      parameters:
+        - in: path
+          name: payee_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Payee
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PayeeResponse" }
+
+  /v1/transactions-sum:
+    get:
+      operationId: getTransactionsSum
+      summary: Count and total only (no transactions payload)
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: type
+          required: false
+          schema: { type: string }
+        - in: query
+          name: account_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: category_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_name_contains
+          required: false
+          schema: { type: string }
+        - in: query
+          name: exclude_transfers
+          required: false
+          schema: { type: string, description: "true to exclude transfers between accounts" }
+        - in: query
+          name: exclude_reconciliations
+          required: false
+          schema: { type: string, description: "true to exclude reconciliation adjustments" }
+        - in: query
+          name: exclude_category_ids
+          required: false
+          schema: { type: string, description: "comma-separated category IDs to exclude" }
+        - in: query
+          name: exclude_payee_ids
+          required: false
+          schema: { type: string, description: "comma-separated payee IDs to exclude" }
+        - in: query
+          name: exclude_payee_names
+          required: false
+          schema: { type: string, description: "comma-separated payee name substrings to exclude" }
+      responses:
+        "200":
+          description: Sum
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TransactionsSumResponse" }
+
+  /v1/market-pnl:
+    get:
+      operationId: getMarketPnL
+      summary: Market P&L from reconciliation adjustments (for investment accounts)
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: account_id
+          required: true
+          schema: { type: string, description: "Investment/brokerage account ID" }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+      responses:
+        "200":
+          description: Market P&L
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account_id: { type: string }
+                  account_name: { type: string }
+                  since_date: { type: string }
+                  until_date: { type: string }
+                  reconciliation_count: { type: integer }
+                  market_pnl_milliunits: { type: integer }
+                  market_pnl: { type: number }
+                required: [account_id, account_name, since_date, until_date, reconciliation_count, market_pnl]
+
+  /v1/transactions:
+    get:
+      operationId: listTransactions
+      summary: List transactions (filtered)
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: type
+          required: false
+          schema: { type: string }
+        - in: query
+          name: account_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: category_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_name_contains
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TransactionsResponse" }
+
+    post:
+      operationId: createTransactions
+      summary: Create transaction(s)
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TransactionWriteRequest" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TransactionWriteResult" }
+
+  /v1/transactions/{transaction_id}:
+    get:
+      operationId: getTransaction
+      summary: Get transaction by id
+      parameters:
+        - in: path
+          name: transaction_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Transaction
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TransactionResponse" }
+
+  /v1/savings-rate:
+    get:
+      operationId: getSavingsRate
+      summary: Calculate savings rate (income - expenses) / income
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+      responses:
+        "200":
+          description: Savings rate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  since_date: { type: string }
+                  until_date: { type: string }
+                  income: { type: number }
+                  expenses: { type: number }
+                  savings: { type: number }
+                  savings_rate: { type: number, description: "percentage (0-100)" }
+
+  /v1/recurring-expenses:
+    get:
+      operationId: getRecurringExpenses
+      summary: Detect recurring expenses/subscriptions
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: months
+          required: false
+          schema: { type: integer, default: 3, description: "months to analyze" }
+        - in: query
+          name: min_occurrences
+          required: false
+          schema: { type: integer, default: 2, description: "minimum months present" }
+        - in: query
+          name: variance_threshold
+          required: false
+          schema: { type: integer, default: 20, description: "max variance percent for similar amounts" }
+      responses:
+        "200":
+          description: Recurring expenses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  months_analyzed: { type: integer }
+                  since_date: { type: string }
+                  recurring_count: { type: integer }
+                  recurring:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        payee_id: { type: string }
+                        payee_name: { type: string }
+                        occurrences: { type: integer }
+                        months_present: { type: integer }
+                        avg_amount: { type: number }
+                        last_date: { type: string }
+
+  /v1/spending-anomalies:
+    get:
+      operationId: getSpendingAnomalies
+      summary: Find categories with unusual spending
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: month
+          required: false
+          schema: { type: string, default: "current", description: "month to analyze" }
+        - in: query
+          name: threshold
+          required: false
+          schema: { type: integer, default: 50, description: "percent above average to flag" }
+      responses:
+        "200":
+          description: Spending anomalies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  month: { type: string }
+                  threshold_percent: { type: number }
+                  months_compared: { type: integer }
+                  anomaly_count: { type: integer }
+                  anomalies:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        category_id: { type: string }
+                        category_name: { type: string }
+                        category_group: { type: string }
+                        current_spending: { type: number }
+                        avg_spending: { type: number }
+                        deviation_percent: { type: integer }
+                        excess: { type: number }
+
+  /v1/net-worth-history:
+    get:
+      operationId: getNetWorthHistory
+      summary: Net worth over time
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: until_date
+          required: true
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: group_by
+          required: false
+          schema: { type: string, default: "month", description: "day | week | month" }
+      responses:
+        "200":
+          description: Net worth history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  since_date: { type: string }
+                  until_date: { type: string }
+                  group_by: { type: string }
+                  current_net_worth: { type: number }
+                  period_count: { type: integer }
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period: { type: string }
+                        net_worth: { type: number }
+
+  /v1/budget-vs-actual:
+    get:
+      operationId: getBudgetVsActual
+      summary: Compare budgeted amounts vs actual spending
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: month
+          required: false
+          schema: { type: string, default: "current", description: "month to analyze" }
+        - in: query
+          name: show_all
+          required: false
+          schema: { type: string, default: "false", description: "true to show all categories" }
+      responses:
+        "200":
+          description: Budget vs actual
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  month: { type: string }
+                  total_budgeted: { type: number }
+                  total_spent: { type: number }
+                  over_budget_count: { type: integer }
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        category_id: { type: string }
+                        category_name: { type: string }
+                        category_group: { type: string }
+                        budgeted: { type: number }
+                        spent: { type: number }
+                        remaining: { type: number }
+                        percent_used: { type: integer }
+                        status: { type: string, description: "over_budget | warning | on_track | under_utilized" }
+
+  /v1/payee-frequency:
+    get:
+      operationId: getPayeeFrequency
+      summary: Visit frequency and spending per payee
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_name_contains
+          required: false
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: false
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: until_date
+          required: false
+          schema: { type: string, description: "YYYY-MM-DD" }
+        - in: query
+          name: group_by
+          required: false
+          schema: { type: string, default: "month", description: "day | week | month" }
+      responses:
+        "200":
+          description: Payee frequency
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payee_id: { type: string, nullable: true }
+                  payee_name: { type: string }
+                  total_visits: { type: integer }
+                  total_spent: { type: number }
+                  avg_per_visit: { type: number }
+                  period_count: { type: integer }
+                  periods:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period: { type: string }
+                        visit_count: { type: integer }
+                        total_spent: { type: number }
+
+  /v1/scheduled-transactions:
+    get:
+      operationId: listScheduledTransactions
+      summary: List scheduled transactions
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Scheduled transactions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ScheduledTransactionsResponse" }
+
+    post:
+      operationId: createScheduledTransaction
+      summary: Create scheduled transaction
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ScheduledTransactionWriteRequest" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ScheduledTransactionResponse" }
+
+  /v1/scheduled-transactions/{id}:
+    get:
+      operationId: getScheduledTransaction
+      summary: Get scheduled transaction by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Scheduled transaction
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ScheduledTransactionResponse" }

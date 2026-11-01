@@ -1,0 +1,40 @@
+{
+  "name": "canonical-wiki",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "bridge/server.js",
+  "scripts": {
+    "start": "node --env-file=.env bridge/server.js",
+    "ingest:bills": "node --env-file=.env pipeline/ingest-bills.js",
+    "ingest:job": "node --env-file=.env pipeline/ingest-job.js",
+    "ingest:brain": "node --env-file=.env pipeline/ingest-brain.js",
+    "detect:vault": "node --env-file=.env pipeline/detect-vault-changes.js",
+    "synthesize:wiki": "node --env-file=.env pipeline/synthesize-wiki.js",
+    "rebuild:index": "node --env-file=.env pipeline/rebuild-wiki-index.js",
+    "sync:wiki": "node --env-file=.env pipeline/sync-wiki-pipeline.js",
+    "maintain:brain": "node --env-file=.env pipeline/maintain-brain.js",
+    "reembed:brain-chunks": "node --env-file=.env pipeline/reembed-brain-chunks.js",
+    "reembed:doc-chunks": "node --env-file=.env pipeline/reembed-doc-chunks.js",
+    "monthly": "node --env-file=.env pipeline/monthly.js",
+    "prep:121": "node --env-file=.env pipeline/prep-121.js",
+    "usage:report": "node --env-file=.env pipeline/usage-report.js",
+    "audit:fidelity": "node --env-file=.env pipeline/audit-fidelity.js",
+    "repair:wiki-links": "node --env-file=.env pipeline/repair-wiki-links.js",
+    "rebuild:extractive": "node --env-file=.env pipeline/rebuild-extractive-sources.js",
+    "eval:wiki": "node --env-file=.env pipeline/eval-wiki.js",
+    "split:hubs": "node --env-file=.env pipeline/split-oversized-hubs.js",
+    "check:public": "node tools/check-public.mjs",
+    "test": "node --test bridge/src/security.test.js bridge/src/errors.test.js pipeline/lib/newsapi.test.js pipeline/lib/wiki-update-guard.test.js pipeline/lib/wiki-alerts.test.js pipeline/lib/monthly.test.js pipeline/lib/withings-measures.test.js pipeline/lib/wiki-fact-retention.test.js pipeline/lib/strip-binary-blobs.test.js pipeline/lib/vault-diff.test.js pipeline/lib/brain-wiki.test.js pipeline/lib/wiki-source-classify.test.js pipeline/lib/wiki-extractive-source.test.js pipeline/lib/wiki-sections.test.js pipeline/lib/wiki-snapshot-archive.test.js pipeline/lib/wiki-one-on-ones.test.js pipeline/lib/wiki-daily-skip.test.js pipeline/lib/prep-121.test.js bridge/src/modules/ynab/savings.test.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "express": "^4.19.2",
+    "openai": "^6.29.0",
+    "pdf-parse": "^2.4.5",
+    "pg": "^8.20.0",
+    "zod": "^4.3.6"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

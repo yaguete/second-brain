@@ -1,0 +1,15 @@
+node_modules/
+.DS_Store
+.env
+.env.*
+!.env.example
+.claude/
+.cursor/
+*.local.json
+*.local.txt
+.llm-usage.jsonl
+.canonical-wiki-*.json
+job-docs/
+/bills/
+PLAN.md
+tools/banned-terms.local.txt

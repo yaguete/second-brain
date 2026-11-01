@@ -1,0 +1,8 @@
+title = "canonical-wiki"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Local env files are gitignored. A tracked .env still fails git ls-files in check-public."
+paths = ['''(^|/)\.env$''', '''(^|/)\.env\.local$''', '''node_modules''']

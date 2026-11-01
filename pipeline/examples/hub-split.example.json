@@ -1,0 +1,15 @@
+[
+  {
+    "hub": "entity-grayhaven.md",
+    "keep": ["Qué es", "Ver también", "Páginas hijas"],
+    "children": [
+      {
+        "filename": "entity-grayhaven-equipo.md",
+        "title": "Equipo de Grayhaven",
+        "blurb": "Quién lleva Harbor Permits y cómo se reparte el trabajo.",
+        "sectionTitles": ["Equipo"],
+        "tags": ["work"]
+      }
+    ]
+  }
+]

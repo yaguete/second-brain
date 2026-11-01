@@ -1,0 +1,9 @@
+{
+  "month": "2026-10",
+  "note": "Fictional context for the monthly prompt. Not a real ledger.",
+  "income": { "currency": "EUR", "amount": 3200, "label": "nómina" },
+  "spending": { "currency": "EUR", "amount": 1840 },
+  "holdings": [
+    { "ticker": "ZZZT", "name": "ZZZT Labs", "shares": 10, "currency": "USD" }
+  ]
+}

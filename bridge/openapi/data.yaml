@@ -1,0 +1,654 @@
+openapi: 3.1.0
+info:
+  title: YNAB Data API
+  version: "1.0.0"
+  description: Endpoints CRUD para acceder a datos de YNAB. Requiere X-API-Key.
+
+servers:
+  - url: http://localhost:3000
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    TransactionInput:
+      type: object
+      properties:
+        transaction:
+          type: object
+          properties:
+            account_id: { type: string }
+            date: { type: string }
+            amount: { type: integer, description: "milliunits" }
+            payee_id: { type: string }
+            payee_name: { type: string }
+            category_id: { type: string }
+            memo: { type: string }
+            cleared: { type: string }
+            approved: { type: boolean }
+        transactions:
+          type: array
+          items:
+            type: object
+            properties:
+              account_id: { type: string }
+              date: { type: string }
+              amount: { type: integer }
+              payee_name: { type: string }
+              category_id: { type: string }
+              memo: { type: string }
+
+    ScheduledTransactionInput:
+      type: object
+      properties:
+        scheduled_transaction:
+          type: object
+          properties:
+            account_id: { type: string }
+            date_first: { type: string }
+            frequency: { type: string }
+            amount: { type: integer }
+            payee_id: { type: string }
+            category_id: { type: string }
+            memo: { type: string }
+
+paths:
+  /health:
+    get:
+      operationId: healthCheck
+      security: []
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
+  /v1/budgets:
+    get:
+      operationId: getBudgets
+      summary: List all budgets
+      responses:
+        "200":
+          description: Budgets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  budgets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+
+  /v1/accounts:
+    get:
+      operationId: listAccounts
+      summary: List all accounts
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Accounts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accounts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+                        type: { type: string }
+                        balance: { type: number }
+                        closed: { type: boolean }
+
+  /v1/accounts/{account_id}:
+    get:
+      operationId: getAccount
+      summary: Get account by id
+      parameters:
+        - in: path
+          name: account_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      name: { type: string }
+                      type: { type: string }
+                      balance: { type: number }
+
+  /v1/categories:
+    get:
+      operationId: listCategories
+      summary: List category groups and categories
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: name_contains
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  category_groups:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+                        categories:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id: { type: string }
+                              name: { type: string }
+                              budgeted: { type: number }
+                              activity: { type: number }
+                              balance: { type: number }
+
+  /v1/categories/{category_id}:
+    get:
+      operationId: getCategory
+      summary: Get category by id
+      parameters:
+        - in: path
+          name: category_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  category:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      name: { type: string }
+                      category_group_name: { type: string }
+                      budgeted: { type: number }
+                      activity: { type: number }
+                      balance: { type: number }
+
+  /v1/months:
+    get:
+      operationId: listMonths
+      summary: List budget months
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Months
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  months:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        month: { type: string }
+                        income: { type: number }
+                        budgeted: { type: number }
+                        activity: { type: number }
+                        to_be_budgeted: { type: number }
+
+  /v1/months/{month}:
+    get:
+      operationId: getMonth
+      summary: Get month detail with categories
+      parameters:
+        - in: path
+          name: month
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Month detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  month:
+                    type: object
+                    properties:
+                      month: { type: string }
+                      income: { type: number }
+                      budgeted: { type: number }
+                      activity: { type: number }
+
+  /v1/payees:
+    get:
+      operationId: listPayees
+      summary: List payees
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: name_contains
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Payees
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+
+  /v1/payees/{payee_id}:
+    get:
+      operationId: getPayee
+      summary: Get payee by id
+      parameters:
+        - in: path
+          name: payee_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Payee
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payee:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      name: { type: string }
+
+  /v1/transactions:
+    get:
+      operationId: listTransactions
+      summary: List transactions
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: since_date
+          required: false
+          schema: { type: string }
+        - in: query
+          name: until_date
+          required: false
+          schema: { type: string }
+        - in: query
+          name: type
+          required: false
+          schema: { type: string }
+        - in: query
+          name: account_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: category_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_id
+          required: false
+          schema: { type: string }
+        - in: query
+          name: payee_name_contains
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        date: { type: string }
+                        amount: { type: number }
+                        payee_name: { type: string }
+                        category_name: { type: string }
+                        memo: { type: string }
+
+    post:
+      operationId: createTransaction
+      summary: Create transaction(s)
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    type: object
+                    properties:
+                      id: { type: string }
+
+    patch:
+      operationId: updateTransactions
+      summary: Update multiple transactions
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+
+  /v1/transactions/{transaction_id}:
+    get:
+      operationId: getTransaction
+      summary: Get transaction by id
+      parameters:
+        - in: path
+          name: transaction_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      date: { type: string }
+                      amount: { type: number }
+                      payee_name: { type: string }
+                      category_name: { type: string }
+                      memo: { type: string }
+
+    put:
+      operationId: replaceTransaction
+      summary: Update single transaction
+      parameters:
+        - in: path
+          name: transaction_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    type: object
+                    properties:
+                      id: { type: string }
+
+  /v1/scheduled-transactions:
+    get:
+      operationId: listScheduledTransactions
+      summary: List scheduled transactions
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Scheduled transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scheduled_transactions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        date_next: { type: string }
+                        frequency: { type: string }
+                        amount: { type: number }
+                        payee_name: { type: string }
+                        category_name: { type: string }
+
+    post:
+      operationId: createScheduledTransaction
+      summary: Create scheduled transaction
+      parameters:
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduledTransactionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scheduled_transaction:
+                    type: object
+                    properties:
+                      id: { type: string }
+
+  /v1/scheduled-transactions/{id}:
+    get:
+      operationId: getScheduledTransaction
+      summary: Get scheduled transaction by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Scheduled transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scheduled_transaction:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      date_next: { type: string }
+                      frequency: { type: string }
+                      amount: { type: number }
+                      payee_name: { type: string }
+
+    put:
+      operationId: replaceScheduledTransaction
+      summary: Update scheduled transaction
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduledTransactionInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scheduled_transaction:
+                    type: object
+                    properties:
+                      id: { type: string }
+
+    delete:
+      operationId: deleteScheduledTransaction
+      summary: Delete scheduled transaction
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: budget_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scheduled_transaction:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      deleted: { type: boolean }
