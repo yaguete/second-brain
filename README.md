@@ -1,4 +1,4 @@
-# canonical-wiki
+# second-brain
 
 A personal knowledge system where an agent-maintained Obsidian wiki is the source of truth, and Postgres/pgvector is a disposable index served over MCP.
 

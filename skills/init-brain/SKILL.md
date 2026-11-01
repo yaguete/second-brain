@@ -1,6 +1,6 @@
 ---
 name: init-brain
-description: 'Arranca canonical-wiki en la máquina de la persona: entrevista, vault, skills, .env, Postgres y un primer ingest del demo. Usar cuando pidan "/init-brain", "inicializa el cerebro", "monta el vault" o "bootstrap".'
+description: 'Arranca second-brain en la máquina de la persona: entrevista, vault, skills, .env, Postgres y un primer ingest del demo. Usar cuando pidan "/init-brain", "inicializa el cerebro", "monta el vault" o "bootstrap".'
 ---
 
 # /init-brain

@@ -1,5 +1,5 @@
 {
-  "name": "canonical-wiki",
+  "name": "second-brain",
   "version": "1.0.0",
   "type": "module",
   "main": "bridge/server.js",
