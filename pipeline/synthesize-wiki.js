@@ -505,6 +505,9 @@ const LLM_RETRY_DELAY_MS = Number(process.env.WIKI_LLM_RETRY_DELAY_MS || 1500);
 const LLM_TIMEOUT_MS = Number(process.env.WIKI_LLM_TIMEOUT_MS || 900_000);
 const LLM_SDK_RETRIES = Number(process.env.WIKI_LLM_SDK_RETRIES || 3);
 const LLM_MAX_TOKENS = Number(process.env.WIKI_LLM_MAX_TOKENS || 32_768);
+// gpt-5 and o-series reject max_tokens; DeepSeek and gpt-4o still use it.
+const TOKEN_LIMIT_FIELD = /^(gpt-5|o\d)/i.test(MODEL) ? "max_completion_tokens" : "max_tokens";
+const TOKEN_LIMIT = /gpt-4o-mini/i.test(MODEL) ? Math.min(LLM_MAX_TOKENS, 16_384) : LLM_MAX_TOKENS;
 const LLM_STREAM = process.env.WIKI_LLM_STREAM !== "off";
 
 /**
@@ -571,7 +574,7 @@ async function llmCall(client, system, user, step = "unknown") {
     response_format: { type: "json_object" },
     // Sin esto el proveedor aplica su default (8192 en DeepSeek) y las páginas grandes
     // vuelven troceadas: JSON truncado con "Unterminated string".
-    max_tokens: LLM_MAX_TOKENS,
+    [TOKEN_LIMIT_FIELD]: TOKEN_LIMIT,
     messages: [
       { role: "system", content: system },
       { role: "user", content: user }
@@ -585,7 +588,7 @@ async function llmCall(client, system, user, step = "unknown") {
       payload.reasoning_effort = THINK_EFFORT;
     }
     if (!thinking) payload.temperature = 0.2;
-  } else {
+  } else if (!/^(gpt-5|o\d)/i.test(MODEL)) {
     payload.temperature = 0.2;
   }
 
@@ -649,7 +652,7 @@ async function repairJson(client, brokenText, step) {
   const res = await client.chat.completions.create({
     model: MODEL,
     response_format: { type: "json_object" },
-    max_tokens: LLM_MAX_TOKENS,
+    [TOKEN_LIMIT_FIELD]: TOKEN_LIMIT,
     messages: [
       {
         role: "system",

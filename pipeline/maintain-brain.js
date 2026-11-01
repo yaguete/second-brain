@@ -128,7 +128,7 @@ function scanLocalWiki() {
 }
 
 function runIngest(extraArgs = []) {
-  const scriptPath = path.join(REPO_ROOT, "scripts/ingest-brain.js");
+  const scriptPath = path.join(REPO_ROOT, "pipeline/ingest-brain.js");
   const r = spawnSync(
     process.execPath,
     ["--env-file", ENV_FILE, scriptPath, ...extraArgs],

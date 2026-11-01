@@ -64,8 +64,8 @@ function runStep(label, scriptRelative, extraArgs, env = process.env) {
 
 console.log("Pipeline wiki: synthesize → detect:vault → ingest:brain");
 
-runStep("1/3 synthesize-wiki", "scripts/synthesize-wiki.js", synthesizeArgs);
-runStep("2/3 detect-vault", "scripts/detect-vault-changes.js", detectArgs);
-runStep("3/3 ingest-brain", "scripts/ingest-brain.js", ingestArgs);
+runStep("1/3 synthesize-wiki", "pipeline/synthesize-wiki.js", synthesizeArgs);
+runStep("2/3 detect-vault", "pipeline/detect-vault-changes.js", detectArgs);
+runStep("3/3 ingest-brain", "pipeline/ingest-brain.js", ingestArgs);
 
 console.log("\nPipeline wiki terminado.\n");

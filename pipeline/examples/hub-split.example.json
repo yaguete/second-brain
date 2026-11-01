@@ -1,13 +1,13 @@
 [
   {
-    "hub": "entity-grayhaven.md",
-    "keep": ["Qué es", "Ver también", "Páginas hijas"],
+    "hub": "entity-harbor-permits.md",
+    "keep": ["Qué es", "Próximos pasos y asuntos abiertos", "Relaciones operativas", "See also"],
     "children": [
       {
-        "filename": "entity-grayhaven-equipo.md",
-        "title": "Equipo de Grayhaven",
-        "blurb": "Quién lleva Harbor Permits y cómo se reparte el trabajo.",
-        "sectionTitles": ["Equipo"],
+        "filename": "entity-harbor-permits-expediente.md",
+        "title": "Expediente de Harbor Permits",
+        "blurb": "Estado operativo del expediente PA-2026-184.",
+        "sectionTitles": ["Expediente y estado operativo"],
         "tags": ["work"]
       }
     ]

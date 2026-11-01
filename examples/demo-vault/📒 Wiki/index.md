@@ -1,27 +1,38 @@
 # Wiki Index
 
 ## Sources
-- [[source-1-1-noa-2026-10-29]] — 1:1 del 29.10.2026, anexo de ruidos. (2026-10-29)
-- [[source-1-1-sam-2026-10-28]] — 1:1 del 28.10.2026, plano y plazo. (2026-10-28)
-- [[source-harbor-permits]] — Estado del expediente PA-2026-184. (2026-10-30)
-- [[source-inventario-puerto-alto]] — Tabla del piso, extractive. (2026-10-30)
-- [[source-permisos-costeros]] — Nota de lectura sobre plazos. (2026-10-19)
+
+- [[source-1-1-sam-okafor-2026-10-28|1-1 con Sam Okafor · 28.10.2026]] (2026-10-28)
+- [[source-2026-10-29-1-1-noa-lindqvist|1-1 con Noa Lindqvist · 29.10.2026]] (2026-10-29)
+- [[source-daily-2026-10-27|Nota diaria · 27.10.2026]] (2026-10-27)
+- [[source-daily-2026-10-29|Nota diaria · 29.10.2026]] (2026-10-29)
+- [[source-grayhaven|Grayhaven]] (2026-11-01)
+- [[source-harbor-permits|Harbor Permits]] (2026-11-01)
+- [[source-noa-lindqvist|Noa Lindqvist]] (2026-11-01)
+- [[source-nota-diaria-2026-10-28|Nota diaria · 28.10.2026]] (2026-10-28)
+- [[source-nota-diaria-2026-10-30|Nota diaria · 30.10.2026]] (2026-10-30)
+- [[source-notas-de-lectura-octubre-2026|Notas de lectura · octubre 2026]] (2026-10-18)
+- [[source-posicion-zzzt|Posición ZZZT]] (2026-10-30)
+- [[source-puerto-alto|Piso en Puerto Alto]] (2026-11-01)
+- [[source-reunion-puerto-alto-2026-10-21|Reunión en Puerto Alto · 21.10.2026]] (2026-10-21)
+- [[source-sam-okafor|Sam Okafor]] (2026-11-01)
+- [[source-tidepool|Tidepool]] (2026-11-01)
 
 ## Entities
-- [[entity-grayhaven]] — La empresa y su equipo. (2 sources)
-- [[entity-harbor-permits]] — Proyecto del local en Puerto Alto. (1 source)
-- [[entity-noa-lindqvist]] — Anexo técnico. (1 source)
-- [[entity-noa-lindqvist-1-1s]] — Reuniones con Noa. (1 source)
-- [[entity-puerto-alto]] — Referencias del piso. (1 source)
-- [[entity-sam-okafor]] — Coordinación del expediente. (1 source)
-- [[entity-sam-okafor-1-1s]] — Reuniones con Sam. (1 source)
-- [[entity-tidepool]] — Mapa de calas, personal. (1 source)
-- [[entity-zzzt]] — Posición de ejemplo. (1 source)
+
+- [[entity-alex-rivera|Alex Rivera]] (3 sources)
+- [[entity-harbor-permits|Harbor Permits]] (12 sources)
+- [[entity-noa-lindqvist-1-1s|Noa Lindqvist — 1:1s]] (0 sources)
+- [[entity-pa-2026-184|Expediente PA-2026-184]] (3 sources)
+- [[entity-sam-okafor-1-1s|Sam Okafor — 1:1s]] (0 sources)
+- [[entity-tidepool|Tidepool]] (2 sources)
+- [[entity-zzzt-positions|Posiciones ZZZT]] (1 sources)
 
 ## Concepts
-- [[concept-plazo-habil]] — Un plazo no se asume hábil. (1 source)
+
+- [[concept-capas-de-informacion|Capas de información]] (1 sources)
 
 ## Synthesis
-- [[synthesis-prioridad-harbor]] — Qué bloquea el expediente a 30.10.2026. (2026-10-30)
+
 
 ## Essays

@@ -10,9 +10,15 @@ List prices are the ones in `bridge/src/shared/llm-usage.js` (`RATES`, USD per 1
 
 `gpt-5.6-luna` also has a cache-write rate of 0.25 in that table. DeepSeek rows are in the same file. A DeepSeek peak hour bills twice the off-peak rate; the code warns and refuses the peak unless `DEEPSEEK_ALLOW_PEAK=1`.
 
-This checkout did not run `synthesize:wiki` or `ingest:brain` against the demo. No non-production provider key was available, and the private environment file was not read. There is therefore no `.llm-usage.jsonl` and no measured cent total.
+Measured on a copy of `examples/demo-vault`, 1 November 2026. `sync:wiki` synthesised 15 notes with `gpt-5.6-luna` and then embedded the wiki. `usage:report` on that synthesis ledger:
 
-After a real run on a **copy** of `examples/demo-vault`:
+| | calls | prompt tokens | cached | output | list price |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Full demo synthesis | 47 | 218,354 | 57.7% | 34,904 | $0.0675 |
+
+`embed()` does not write the ledger, so the 84 inserted chunks are not in that dollar figure. The A/B in `docs/evals.md` is extra: $0.0103 for `gpt-5.6-luna` and $0.0046 for `gpt-4o-mini`, on one 1:1 note.
+
+After a later run on a **copy** of `examples/demo-vault`:
 
 ```bash
 npm run usage:report

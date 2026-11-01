@@ -80,7 +80,7 @@ function runArm(label, envExtra, files) {
   for (const file of files) {
     const r = spawnSync(
       process.execPath,
-      ["--env-file=.env", "scripts/synthesize-wiki.js", "--file", file],
+      ["--env-file=.env", "pipeline/synthesize-wiki.js", "--file", file],
       { cwd: REPO_ROOT, env, encoding: "utf8" }
     );
     console.log(`\n── ${label} / ${file} exit=${r.status} ──`);
@@ -106,8 +106,15 @@ function runArm(label, envExtra, files) {
   return { ledger, retentions, stderrHints: "" };
 }
 
-const aArg = process.argv.find((a) => a.startsWith("--a="))?.slice(4) || "";
-const bArg = process.argv.find((a) => a.startsWith("--b="))?.slice(4) || "";
+function flagValue(name) {
+  const eq = process.argv.find((a) => a.startsWith(`${name}=`));
+  if (eq) return eq.slice(name.length + 1);
+  const i = process.argv.indexOf(name);
+  if (i >= 0 && process.argv[i + 1] && !process.argv[i + 1].startsWith("--")) return process.argv[i + 1];
+  return "";
+}
+const aArg = flagValue("--a");
+const bArg = flagValue("--b");
 const fileArgIdx = process.argv.indexOf("--file");
 const sourcesArg = process.argv.find((a) => a.startsWith("--sources="))?.split("=")[1];
 
