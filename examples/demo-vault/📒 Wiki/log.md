@@ -61,3 +61,11 @@ Summary: Procesada «Posición ZZZT».
 ## [2026-11-01] ingest | Tidepool
 Pages created: 1. Pages updated: 0.
 Summary: Procesada «Tidepool».
+
+## [2026-11-01] ingest | Marea de octubre
+Pages created: 0. Pages updated: 3.
+Summary: Procesada «Marea de octubre».
+
+## [2026-11-01] ingest | Permisos costeros, una nota de lectura
+Pages created: 1. Pages updated: 0.
+Summary: Procesada «Permisos costeros, una nota de lectura».

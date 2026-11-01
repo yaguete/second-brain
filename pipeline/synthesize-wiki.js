@@ -44,13 +44,13 @@
  *   --include-low-significance   Incluye fuentes con cambio normalizado bajo el umbral (por defecto se omiten)
  *
  * Exclusiones deterministas (sin LLM):
- *   - Rutas bajo la wiki, 🚀 Personal/🗂️ Archive/, 🛠️ Resources/, 📥 Inbox/
+ *   - Rutas bajo la wiki y 🛠️ Resources/. 📥 Inbox/ sí se sintetiza.
  *   - Fuentes no-daily con tamaño UTF-8 < 200 bytes
  *   - Daily notes con menos de ~50 caracteres útiles tras quitar la plantilla fija
  *     (incluye tareas `- [ ]` no hechas; `[x]` / `[<]` sí cuentan)
  *   - Movimientos con hash idéntico (rename o cambio de carpeta) desde una ruta que ya
  *     era fuente sintetizable: el snapshot adopta la ruta nueva, sin LLM. Si el origen
- *     estaba excluido (p. ej. 📥 Inbox/) o tenía aviso pendiente, se sintetiza.
+ *     estaba excluido (p. ej. 🛠️ Resources/) o tenía aviso pendiente, se sintetiza.
  */
 
 import { excludedPrefixes, includedPrefixes, requireVaultPath, wikiDirName } from "./lib/layout.js";
@@ -720,15 +720,20 @@ async function chatMarkdown(client, system, user, step = "source") {
   throw new Error(`chatMarkdown failed after ${LLM_RETRIES + 1} attempts: ${lastErr.message}`);
 }
 
+function isPipelineAlert(relPath) {
+  const base = relPath.split("/").pop();
+  return base === "⚠ wiki-sync.md" || /^⚠ wiki-sync-\d{4}-\d{2}-\d{2}\.md$/.test(base);
+}
+
 function shouldProcessSource(relPath) {
-  if (EXCLUDED_EXACT_PATHS.has(relPath)) return false;
+  if (EXCLUDED_EXACT_PATHS.has(relPath) || isPipelineAlert(relPath)) return false;
   if (INCLUDED_PATH_PREFIXES.some((prefix) => relPath.startsWith(prefix))) return true;
   return !EXCLUDED_PATH_PREFIXES.some((prefix) => relPath.startsWith(prefix));
 }
 
 /**
  * Un movimiento con hash idéntico solo se salta si el origen ya pasaba por el LLM:
- * las notas nacen en 📥 Inbox (excluido), así que archivarlas es su primera síntesis.
+ * un origen excluido (p. ej. 🛠️ Resources/) todavía no ha pasado por el LLM.
  * @returns {string | null} motivo para sintetizar, o null si basta con adoptar la ruta
  */
 function movedSourceNeedsSynthesis({ from, to }, pendingAlertSet) {
@@ -756,7 +761,7 @@ function resolveFileArg(rawRel) {
   }
   if (!shouldProcessSource(rel)) {
     console.error(
-      "La ruta está excluida (wiki, 🚀 Personal/🗂️ Archive/, 🛠️ Resources/ o 📥 Inbox/); elige otra fuente."
+      "La ruta está excluida (wiki, 🛠️ Resources/ o un aviso ⚠ wiki-sync); elige otra fuente."
     );
     process.exit(1);
   }

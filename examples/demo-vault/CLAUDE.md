@@ -37,7 +37,7 @@ vault/
 
 - `📥 Inbox/` → Inbox for external sources. Immutable — NEVER edit, rename or delete.
 - `📒 Wiki/` → Yours. Create, edit, delete and reorganise freely. Every page has YAML frontmatter and wikilinks.
-- `💼 Work/`, `🚀 Personal/`, `🗓️ Daily notes/` → Human's. You may read them as ingest sources but must NOT modify them unless explicitly instructed.
+- `💼 Work/`, `🚀 Personal/`, `🗓️ Daily notes/`, `📥 Inbox/` → Human's. You may read them as ingest sources but must NOT modify them unless explicitly instructed. The inbox alert `⚠ wiki-sync.md` is operational and is not a source.
 - `🛠️ Resources/` → Shared. You may create and edit technical reference pages.
 
 ### Source immutability rule

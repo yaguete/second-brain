@@ -36,7 +36,7 @@ export function excludedPrefixes(wikiName = wikiDirName()) {
   if (fromEnv && fromEnv.trim()) {
     return fromEnv.split(",").map((s) => s.trim()).filter(Boolean);
   }
-  return [`${wikiName}/`, "🛠️ Resources/", `${inboxDirName()}/`];
+  return [`${wikiName}/`, "🛠️ Resources/"];
 }
 
 /** Exceptions inside an excluded prefix. Empty unless WIKI_INCLUDE_PREFIXES is set. */

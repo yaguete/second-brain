@@ -185,7 +185,7 @@ Every other `process.env` name the code reads:
 | `WIKI_AUDIT_MIN_BODY_CHARS` | no | the script's built-in |
 | `WIKI_BACKUP_DIR` | no | no backups |
 | `WIKI_CONTEXT_MAX_CHARS` | no | 80000 |
-| `WIKI_EXCLUDE_PREFIXES` | no | wiki, Resources, inbox |
+| `WIKI_EXCLUDE_PREFIXES` | no | wiki, Resources. Inbox is synthesized. `⚠ wiki-sync.md` is not |
 | `WIKI_EXISTING_PAGE_MAX_CHARS` | no | 100000 |
 | `WIKI_EXTRACTIVE_EXCLUDE` | no | empty |
 | `WIKI_EXTRACTIVE_MIN_CHARS` | no | classifier default |
